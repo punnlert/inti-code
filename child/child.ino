@@ -14,6 +14,50 @@ typedef struct package Package;
 Package dataRecieve;
 Package dataTransmit;
 
+//control speaker with transistor
+class Speaker {
+  private:
+  bool _state = false;
+  bool _play = false;
+  uint8_t _pin;
+  unsigned long _lastSwitchedTime = 0;
+  int _melody[12] = {500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500};
+  int _pointer = 1;
+
+  public:
+  Speaker(uint8_t pin)
+    : _pin(pin) {}
+
+  void begin() {
+    pinMode(_pin, OUTPUT);
+  }
+
+  void changeState() {
+    if (_play) {
+      if ((millis() - _lastSwitchedTime) > _melody[_pointer] ){
+        digitalWrite(_pin, _state);
+        _lastSwitchedTime = millis();
+        _state = !_state;
+        _pointer++;
+        if (_pointer > 12) {_pointer = 0;}
+      }
+    }
+  }
+
+  void play() {
+    digitalWrite(_pin, HIGH);
+    _play = true;
+  }
+
+  void pause() {
+    digitalWrite(_pin, LOW);
+    _play = false;
+    _pointer = 1;
+    _state = true;
+    _lastSwitchedTime = 0;
+  }
+};
+
 class Button {
 private:
   bool _state;
@@ -62,7 +106,8 @@ const int numPixels = 5;
 const byte n = 17;  // for frequency
 
 const byte OUTPUT_PIN = 3;  // Timer 2 "B" output: OC2B
-const byte CONTROL_PIN = 5;
+// const byte CONTROL_PIN = 5;
+Speaker SPEAKER_CONTROL(5);
 
 // Declare the NeoPixel strip
 Adafruit_NeoPixel strip(numPixels, pixelPin, NEO_GRB + NEO_KHZ800);
@@ -71,6 +116,7 @@ void setup() {
   Serial.begin(9600);
   Serial.println("child");
 
+  SPEAKER_CONTROL.begin();
 
   OK_BUTTON.begin();
   COUNSELING_BUTTON.begin();
@@ -85,7 +131,7 @@ void setup() {
   strip.show(); // Initialize all pixels to 'off'
 
   pinMode (OUTPUT_PIN, OUTPUT);
-  pinMode(CONTROL_PIN, OUTPUT);
+  // pinMode(CONTROL_PIN, OUTPUT);
 
   TCCR2A = bit(WGM20) | bit(WGM21) | bit(COM2B1);  // fast PWM, clear OC2A on compare
   TCCR2B = bit(WGM22) | bit(CS22);                 // fast PWM, prescaler of 64
@@ -98,11 +144,14 @@ void loop() {
   delay(10);
   radio.startListening(); // Always listening
 
+  SPEAKER_CONTROL.changeState();
+
   if (radio.available()) {
     // char txt_received[10] = "";
     // radio.read(&txt_received, sizeof(txt_received));
 
-    digitalWrite(CONTROL_PIN, 1);
+    // digitalWrite(CONTROL_PIN, 1);
+    SPEAKER_CONTROL.play();
 
     radio.read(&dataRecieve, sizeof(dataRecieve));
     Serial.print("Received from: "); Serial.println(dataRecieve.sender);
@@ -120,7 +169,8 @@ void loop() {
   }
 //  Serial.println(count);
   if (OK_BUTTON.isReleased()) { 
-    digitalWrite(CONTROL_PIN, 0);
+    // digitalWrite(CONTROL_PIN, 0);
+    SPEAKER_CONTROL.pause();
 
     radio.stopListening();
     // const char txt_sent[] = "Police";
@@ -134,7 +184,8 @@ void loop() {
   }
 
   if (COUNSELING_BUTTON.isReleased()) { 
-    digitalWrite(CONTROL_PIN, 0);
+    // digitalWrite(CONTROL_PIN, 0);
+    SPEAKER_CONTROL.pause();
 
     radio.stopListening();
     // const char txt_sent[] = "Police";
@@ -148,7 +199,8 @@ void loop() {
   }
 
   if (EMERGENCY_BUTTON.isReleased()) { 
-    digitalWrite(CONTROL_PIN, 0);
+    // digitalWrite(CONTROL_PIN, 0);
+    SPEAKER_CONTROL.pause();
 
     radio.stopListening();
     // const char txt_sent[] = "Police";
