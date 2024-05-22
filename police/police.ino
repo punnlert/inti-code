@@ -84,10 +84,10 @@ void loop() {
     // radio.read(&txt_received, sizeof(txt_received));
 
     radio.read(&dataRecieve, sizeof(dataRecieve));
-    Serial.print("Received from: "); Serial.println(dataRecieve.sender);
+    // Serial.print("Received from: "); Serial.println(dataRecieve.sender);
     Serial.print("Button Type: "); Serial.println(dataRecieve.buttonType);
-    Serial.println("---------------------------------");
-    Serial.println(" ");
+    // Serial.println("---------------------------------");
+    // Serial.println(" ");
     
     if (dataRecieve.buttonType == 2) {
       for (int i = 0; i < 3; i++) {
@@ -126,17 +126,17 @@ void loop() {
     for (int i=1; i<4; i++) {
       checkOk();
       if (radio.available()) {break;}
-      Serial.print("resend ");
-      Serial.print(i);
-      Serial.println("/3");
-      Serial.println("---------------------------------");
-      Serial.println(" ");
+      // Serial.print("resend ");
+      // Serial.print(i);
+      // Serial.println("/3");
+      // Serial.println("---------------------------------");
+      // Serial.println(" ");
     }
 
     if (radio.available()){
-      Serial.println("child is ok :)");
-      Serial.println("---------------------------------");
-      Serial.println(" ");
+      // Serial.println("child is ok :)");
+      // Serial.println("---------------------------------");
+      // Serial.println(" ");
       for (int i = 0; i < 3; i++) {
         setStripColor(0, 255, 0); 
         delay(200);
@@ -161,7 +161,7 @@ void checkOk() {
   // Serial.print("Sent to: "); Serial.println(txt_sent);
   dataTransmit.buttonType = 0;
   radio.write(&dataTransmit, sizeof(dataTransmit));
-  Serial.println("Sent to: child");
+  // Serial.println("Sent to: child");
 
   //start waiting
   radio.startListening();
@@ -170,7 +170,7 @@ void checkOk() {
   while ( ! radio.available() ) {
     // Oh dear, no response received within our timescale
     if (millis() - started_waiting_at > 5000 ) {
-      Serial.println("No respond from child for too long.");
+      // Serial.println("No respond from child for too long.");
       return;
     }
   }
