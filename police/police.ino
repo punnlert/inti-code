@@ -80,14 +80,10 @@ void loop() {
   radio.startListening(); // Always listening
 
   if (radio.available()) {
-    // char txt_received[10] = "";
-    // radio.read(&txt_received, sizeof(txt_received));
 
     radio.read(&dataRecieve, sizeof(dataRecieve));
-    // Serial.print("Received from: "); Serial.println(dataRecieve.sender);
-    Serial.print("Button Type: "); Serial.println(dataRecieve.buttonType);
-    // Serial.println("---------------------------------");
-    // Serial.println(" ");
+    // Serial.print("Button Type: "); Serial.println(dataRecieve.buttonType);
+    Serial.print("{\"event\":0, \"buttonType\":"); Serial.print(dataRecieve.buttonType); Serial.println("}"); 
     
     if (dataRecieve.buttonType == 2) {
       for (int i = 0; i < 3; i++) {
@@ -107,25 +103,10 @@ void loop() {
   }
 
   if (ACTIVATE_BUTTON.isReleased()) { 
-    // radio.stopListening();
-    // const char txt_sent[] = "Police";
-    // radio.write(&txt_sent, sizeof(txt_sent));
-    // Serial.print("Sent to: "); Serial.println(txt_sent);
-
-    // //start waiting
-    // radio.startListening();
-    // unsigned long started_waiting_at = millis();
-    // // Loop here until we get indication that some data is ready for us to read (or we time out)
-    // while ( ! radio.available() ) {
-    //   // Oh dear, no response received within our timescale
-    //   if (millis() - started_waiting_at > 5000 ) {
-    //     Serial.println("No respond from child for too long.");
-    //     return;
-    //   }
-    // }
     for (int i=1; i<4; i++) {
       checkOk();
       if (radio.available()) {break;}
+      Serial.print("{\"event\":2, \"repeated\":"); Serial.print(i); Serial.println("}");
       // Serial.print("resend ");
       // Serial.print(i);
       // Serial.println("/3");
@@ -135,6 +116,7 @@ void loop() {
 
     if (radio.available()){
       // Serial.println("child is ok :)");
+      Serial.println("{\"event\":1}");
       // Serial.println("---------------------------------");
       // Serial.println(" ");
       for (int i = 0; i < 3; i++) {
@@ -156,9 +138,6 @@ void setStripColor(uint8_t red, uint8_t green, uint8_t blue) {
 
 void checkOk() {
   radio.stopListening();
-  // const char txt_sent[] = "Police";
-  // radio.write(&txt_sent, sizeof(txt_sent));
-  // Serial.print("Sent to: "); Serial.println(txt_sent);
   dataTransmit.buttonType = 0;
   radio.write(&dataTransmit, sizeof(dataTransmit));
   // Serial.println("Sent to: child");
@@ -171,6 +150,7 @@ void checkOk() {
     // Oh dear, no response received within our timescale
     if (millis() - started_waiting_at > 5000 ) {
       // Serial.println("No respond from child for too long.");
+      Serial.println("{\"event\":3}");
       return;
     }
   }

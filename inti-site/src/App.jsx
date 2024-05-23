@@ -16,7 +16,9 @@ function App() {
 
   socket.on('button data', (data) => {
     setDisplayText(data);
-    console.log(data);
+    const input = JSON.parse(data);
+    console.log(input.Event);
+    //console.log(data);
   })
 
   return (
