@@ -99,7 +99,7 @@ RF24 radio(9, 8); // CE, CSN
 const byte addresses[][10] = {"ADDRESS01","ADDRESS02"};
 Button OK_BUTTON(4); 
 Button COUNSELING_BUTTON(2);
-Button EMERGENCY_BUTTON(10);
+Button EMERGENCY_BUTTON(7);
 const int pixelPin = 6;   
 const int numPixels = 5; 
 
@@ -143,8 +143,10 @@ void setup() {
 void loop() {
   delay(10);
   radio.startListening(); // Always listening
+  // Serial.println(digitalRead(10));
 
   SPEAKER_CONTROL.changeState();
+  // Serial.println(digitalRead(10));
 
   if (radio.available()) {
     // char txt_received[10] = "";
@@ -200,6 +202,7 @@ void loop() {
 
   if (EMERGENCY_BUTTON.isReleased()) { 
     // digitalWrite(CONTROL_PIN, 0);
+    // Serial.println("hi");
     SPEAKER_CONTROL.pause();
 
     radio.stopListening();

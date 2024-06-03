@@ -54,7 +54,7 @@ RF24 radio(9, 8); // CE, CSN
 const byte addresses[][10] = {"ADDRESS01","ADDRESS02"};
 Button ACTIVATE_BUTTON(4);
 const int pixelPin = 6;   
-const int numPixels = 5; 
+const int numPixels = 1; 
 
 // Declare the NeoPixel strip
 Adafruit_NeoPixel strip(numPixels, pixelPin, NEO_GRB + NEO_KHZ800);
@@ -78,6 +78,7 @@ void setup() {
 void loop() {
   delay(10);
   radio.startListening(); // Always listening
+  // Serial.println(digitalRead(4));
 
   if (radio.available()) {
 
