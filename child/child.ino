@@ -99,11 +99,11 @@ RF24 radio(9, 8); // CE, CSN
 const byte addresses[][10] = {"ADDRESS01","ADDRESS02"};
 Button OK_BUTTON(4); 
 Button COUNSELING_BUTTON(2);
-Button EMERGENCY_BUTTON(10);
+Button EMERGENCY_BUTTON(7);
 const int pixelPin = 6;   
 const int numPixels = 5; 
 
-const byte n = 17;  // for frequency
+const byte n = 23;  // for frequency
 
 const byte OUTPUT_PIN = 3;  // Timer 2 "B" output: OC2B
 // const byte CONTROL_PIN = 5;
@@ -153,7 +153,9 @@ void loop() {
     // radio.read(&txt_received, sizeof(txt_received));
 
     // digitalWrite(CONTROL_PIN, 1);
-    SPEAKER_CONTROL.play();
+    if (dataRecieve.buttonType == 0) {
+      SPEAKER_CONTROL.play();
+    }
 
     radio.read(&dataRecieve, sizeof(dataRecieve));
     Serial.print("Received from: "); Serial.println(dataRecieve.sender);
