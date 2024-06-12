@@ -99,7 +99,7 @@ RF24 radio(9, 8); // CE, CSN
 const byte addresses[][10] = {"ADDRESS01","ADDRESS02"};
 Button OK_BUTTON(4); 
 Button COUNSELING_BUTTON(2);
-Button EMERGENCY_BUTTON(7);
+Button EMERGENCY_BUTTON(10);
 const int pixelPin = 6;   
 const int numPixels = 5; 
 

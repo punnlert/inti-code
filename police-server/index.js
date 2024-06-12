@@ -32,11 +32,15 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
   console.log('a user connected')
   const parser = port.pipe(new DelimiterParser({ delimiter: '\n' }));
-    parser.on('data', (data) => {
+  parser.on('data', (data) => {
     let str = '' + data;
     console.log('emit: ' + str);
     io.emit('button data', str);
   });
+  socket.on('sendChildSignal', () => {
+    console.log("send emergency");
+    port.write(Buffer.from("{\"event\":5}"));
+  })
 });
 
 server.listen(3000, () => {

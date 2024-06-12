@@ -1,9 +1,20 @@
+
 // Code for Device 1: Receiver and Transmitter with Button and NeoPixel Notification
 #include <SPI.h>
 #include <RF24.h>
 #include <nRF24L01.h>
 #include <Adafruit_NeoPixel.h>
 
+
+//for serial in
+const byte numChars = 32;
+char receivedChars[numChars];
+
+boolean newData = false;
+
+int dataNumber = 0;
+
+// for communication
 struct package {
   int buttonType;
   char sender[300] = "police";
@@ -60,7 +71,7 @@ const int numPixels = 1;
 Adafruit_NeoPixel strip(numPixels, pixelPin, NEO_GRB + NEO_KHZ800);
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.println("police");
 
 
@@ -79,6 +90,57 @@ void loop() {
   delay(10);
   radio.startListening(); // Always listening
   // Serial.println(digitalRead(4));
+
+  // if (Serial.available()) {
+  //   Serial.println("yes");
+  //   String temp = Serial.readString();
+  //   char * tab2 = new char [temp.length()+1];
+  //   strcpy (tab2, temp.c_str());
+  //   deserializeJson(serialIn, tab2);
+  //   int eventType = serialIn["event"];
+  //   for (int i=1; i<4; i++) {
+  //     checkOk();
+  //     if (radio.available()) {break;}
+  //     Serial.print("{\"event\":2, \"repeated\":"); Serial.print(i); Serial.println("}");
+  //   }
+
+  //   if (radio.available()){
+  //     Serial.println("{\"event\":1}");
+  //     for (int i = 0; i < 3; i++) {
+  //       setStripColor(0, 255, 0); 
+  //       delay(200);
+  //       setStripColor(0, 0, 0);   
+  //       delay(200);
+  //     }
+  //     Serial.
+  //   }
+  // }
+
+
+  // uncomment for serial comm
+  // ------------------------------------------------------------------------------------------------
+  // recvWithEndMarker();
+  // if (newData) {
+  //   dataNumber = 0;
+  //   dataNumber = atoi(receivedChars);
+  //   if (dataNumber == 5){
+  //     for (int i=1; i<4; i++) {
+  //       checkOk();
+  //       if (radio.available()) {break;}
+  //       Serial.print("{\"event\":2, \"repeated\":"); Serial.print(i); Serial.println("}");
+  //     }
+
+  //     if (radio.available()){
+  //       Serial.println("{\"event\":1}");
+  //       for (int i = 0; i < 3; i++) {
+  //         setStripColor(0, 255, 0); 
+  //         delay(200);
+  //         setStripColor(0, 0, 0);   
+  //         delay(200);
+  //       }
+  //     }
+  //   }
+  // }
 
   if (radio.available()) {
 
@@ -104,6 +166,7 @@ void loop() {
   }
 
   if (ACTIVATE_BUTTON.isReleased()) { 
+    // Serial.println("here");
     for (int i=1; i<4; i++) {
       checkOk();
       if (radio.available()) {break;}
@@ -139,12 +202,16 @@ void setStripColor(uint8_t red, uint8_t green, uint8_t blue) {
 
 void checkOk() {
   radio.stopListening();
+  // Serial.println("radio.stopListening();");
   dataTransmit.buttonType = 0;
+  // Serial.println("dataTransmit.buttonType = 0;");
   radio.write(&dataTransmit, sizeof(dataTransmit));
+  // Serial.println("radio.write(&dataTransmit, sizeof(dataTransmit));");
   // Serial.println("Sent to: child");
 
   //start waiting
   radio.startListening();
+  // Serial.println("radio.startListening();");
   unsigned long started_waiting_at = millis();
   // Loop here until we get indication that some data is ready for us to read (or we time out)
   while ( ! radio.available() ) {
@@ -155,4 +222,27 @@ void checkOk() {
       return;
     }
   }
+}
+
+void recvWithEndMarker() {
+    static byte ndx = 0;
+    char endMarker = '\n';
+    char rc;
+    
+    if (Serial.available() > 0) {
+        rc = Serial.read();
+
+        if (rc != endMarker) {
+            receivedChars[ndx] = rc;
+            ndx++;
+            if (ndx >= numChars) {
+                ndx = numChars - 1;
+            }
+        }
+        else {
+            receivedChars[ndx] = '\0'; // terminate the string
+            ndx = 0;
+            newData = true;
+        }
+    }
 }
